@@ -2,14 +2,14 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authAPI } from '../../lib/api';
-import { User, RegisterData, LoginCredentials } from '../../../shared/types';
+import { User, RegisterData, LoginCredentials, AuthResponse } from '../../../shared/types';
 
 // Define the shape of our authentication context
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signUp: (email: string, password: string, name?: string) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name?: string) => Promise<AuthResponse>;
+  signIn: (email: string, password: string) => Promise<AuthResponse>;
   signOut: () => Promise<void>;
 }
 
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   // Sign up function
-  const signUp = async (email: string, password: string, name?: string) => {
+  const signUp = async (email: string, password: string, name?: string): Promise<AuthResponse> => {
     try {
       const registerData: RegisterData = { email, password, name };
       const response = await authAPI.signUp(registerData);
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   // Sign in function
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<AuthResponse> => {
     try {
       const loginData: LoginCredentials = { email, password };
       const response = await authAPI.signIn(loginData);
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   // Sign out function
-  const signOut = async () => {
+  const signOut = async (): Promise<void> => {
     try {
       await authAPI.signOut();
       setUser(null);
