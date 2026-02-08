@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { taskAPI } from '../../lib/api';
-import { Task } from '../../../shared/types';
+import { taskAPI } from '../lib/api';
+import { Task } from '../../shared/types';
 
 interface TaskCardProps {
   task: Task;

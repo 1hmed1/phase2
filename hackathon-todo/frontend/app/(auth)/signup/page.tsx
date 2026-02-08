@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../context/auth-context';
+import { useAuth } from '../../context/auth-context';
 import AuthForm from '../../../components/auth-form';
 
 const SignUpPage = () => {

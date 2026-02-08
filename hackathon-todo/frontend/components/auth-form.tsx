@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '../context/auth-context';
+import { useAuth } from '../app/context/auth-context';
 
 interface AuthFormProps {
   type: 'signup' | 'signin';

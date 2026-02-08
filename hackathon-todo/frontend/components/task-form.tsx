@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { taskAPI } from '../../lib/api';
-import { TaskCreate, Task } from '../../../shared/types';
+import { taskAPI } from '../lib/api';
+import { TaskCreate, Task } from '../../shared/types';
 
 interface TaskFormProps {
   userId: string;

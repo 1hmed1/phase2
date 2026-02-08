@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/auth-context';
-import TaskList from '../components/task-list';
+import TaskList from '../../components/task-list';
 import { motion } from 'framer-motion';
 import { User } from '../../../shared/types';
 

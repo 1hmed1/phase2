@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TaskCard from './task-card';
 import TaskForm from './task-form';
-import { taskAPI } from '../../lib/api';
-import { Task } from '../../../shared/types';
+import { Task } from '../../shared/types';
+import { taskAPI } from '../lib/api';  // ✅ Changed from api to taskAPI
 
 interface TaskListProps {
   userId: string;
@@ -19,12 +19,11 @@ const TaskList = ({ userId }: TaskListProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch tasks when component mounts or userId changes
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         setIsLoading(true);
-        const userTasks = await taskAPI.getUserTasks(userId);
+        const userTasks = await taskAPI.getUserTasks(userId);  // ✅ Changed to taskAPI
         setTasks(userTasks);
       } catch (err) {
         console.error('Error fetching tasks:', err);
@@ -37,18 +36,15 @@ const TaskList = ({ userId }: TaskListProps) => {
     fetchTasks();
   }, [userId]);
 
-  // Apply filters and search when tasks, filter, or search query changes
   useEffect(() => {
     let result = [...tasks];
 
-    // Apply filter
     if (filter === 'active') {
       result = result.filter(task => !task.completed);
     } else if (filter === 'completed') {
       result = result.filter(task => task.completed);
     }
 
-    // Apply search
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(task => 
@@ -93,35 +89,35 @@ const TaskList = ({ userId }: TaskListProps) => {
         <div className="flex space-x-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-md ${
+            className={`px-4 py-2 rounded-md transition-colors ${
               filter === 'all'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            All <span className="bg-gray-700 text-white rounded-full px-2 py-0.5 ml-1">{tasks.length}</span>
+            All <span className="bg-gray-700 text-white rounded-full px-2 py-0.5 ml-1 text-xs">{tasks.length}</span>
           </button>
           <button
             onClick={() => setFilter('active')}
-            className={`px-4 py-2 rounded-md ${
+            className={`px-4 py-2 rounded-md transition-colors ${
               filter === 'active'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            Active <span className="bg-gray-700 text-white rounded-full px-2 py-0.5 ml-1">
+            Active <span className="bg-gray-700 text-white rounded-full px-2 py-0.5 ml-1 text-xs">
               {tasks.filter(t => !t.completed).length}
             </span>
           </button>
           <button
             onClick={() => setFilter('completed')}
-            className={`px-4 py-2 rounded-md ${
+            className={`px-4 py-2 rounded-md transition-colors ${
               filter === 'completed'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            Completed <span className="bg-gray-700 text-white rounded-full px-2 py-0.5 ml-1">
+            Completed <span className="bg-gray-700 text-white rounded-full px-2 py-0.5 ml-1 text-xs">
               {tasks.filter(t => t.completed).length}
             </span>
           </button>
@@ -173,13 +169,20 @@ const TaskList = ({ userId }: TaskListProps) => {
         <AnimatePresence>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTasks.map((task) => (
-              <TaskCard
+              <motion.div
                 key={task.id}
-                task={task}
-                userId={userId}
-                onTaskUpdate={handleTaskUpdated}
-                onTaskDelete={handleTaskDeleted}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                transition={{ duration: 0.3 }}
+              >
+                <TaskCard
+                  task={task}
+                  userId={userId}
+                  onTaskUpdate={handleTaskUpdated}
+                  onTaskDelete={handleTaskDeleted}
+                />
+              </motion.div>
             ))}
           </div>
         </AnimatePresence>
