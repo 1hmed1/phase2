@@ -1,0 +1,313 @@
+openapi: 3.0.3
+info:
+  title: Beautiful Todo Web App API
+  description: API for the Beautiful Todo Web App with multi-tenant security
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://github.com/support
+servers:
+  - url: https://api.beautifultodo.app
+    description: Production server
+  - url: https://staging-api.beautifultodo.app
+    description: Staging server
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /{user_id}/tasks:
+    get:
+      summary: Get all tasks for a user
+      description: Retrieve all tasks belonging to the specified user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: UUID of the user
+          schema:
+            type: string
+            format: uuid
+        - name: completed
+          in: query
+          required: false
+          description: Filter tasks by completion status
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response with user's tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - invalid or missing JWT
+        '403':
+          description: Forbidden - user_id in URL doesn't match JWT user_id
+        '404':
+          description: User not found
+      security:
+        - bearerAuth: []
+    
+    post:
+      summary: Create a new task
+      description: Create a new task for the specified user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: UUID of the user
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Bad request - invalid input data
+        '401':
+          description: Unauthorized - invalid or missing JWT
+        '403':
+          description: Forbidden - user_id in URL doesn't match JWT user_id
+      security:
+        - bearerAuth: []
+
+  /{user_id}/tasks/{task_id}:
+    get:
+      summary: Get a specific task
+      description: Retrieve a specific task by ID for the specified user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: UUID of the user
+          schema:
+            type: string
+            format: uuid
+        - name: task_id
+          in: path
+          required: true
+          description: ID of the task
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response with the task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - invalid or missing JWT
+        '403':
+          description: Forbidden - user_id in URL doesn't match JWT user_id or task doesn't belong to user
+        '404':
+          description: Task not found
+      security:
+        - bearerAuth: []
+    
+    put:
+      summary: Update a task
+      description: Update an existing task for the specified user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: UUID of the user
+          schema:
+            type: string
+            format: uuid
+        - name: task_id
+          in: path
+          required: true
+          description: ID of the task
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Bad request - invalid input data
+        '401':
+          description: Unauthorized - invalid or missing JWT
+        '403':
+          description: Forbidden - user_id in URL doesn't match JWT user_id or task doesn't belong to user
+        '404':
+          description: Task not found
+      security:
+        - bearerAuth: []
+    
+    delete:
+      summary: Delete a task
+      description: Delete an existing task for the specified user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: UUID of the user
+          schema:
+            type: string
+            format: uuid
+        - name: task_id
+          in: path
+          required: true
+          description: ID of the task
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Task deleted successfully
+        '401':
+          description: Unauthorized - invalid or missing JWT
+        '403':
+          description: Forbidden - user_id in URL doesn't match JWT user_id or task doesn't belong to user
+        '404':
+          description: Task not found
+      security:
+        - bearerAuth: []
+
+  /{user_id}/tasks/{task_id}/complete:
+    patch:
+      summary: Toggle task completion status
+      description: Toggle the completion status of a task for the specified user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: UUID of the user
+          schema:
+            type: string
+            format: uuid
+        - name: task_id
+          in: path
+          required: true
+          description: ID of the task
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task completion status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized - invalid or missing JWT
+        '403':
+          description: Forbidden - user_id in URL doesn't match JWT user_id or task doesn't belong to user
+        '404':
+          description: Task not found
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the task
+          example: 1
+        user_id:
+          type: string
+          format: uuid
+          description: UUID of the user who owns the task
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        title:
+          type: string
+          description: Task title
+          minLength: 1
+          maxLength: 200
+          example: "Buy groceries"
+        description:
+          type: string
+          description: Optional task description
+          maxLength: 1000
+          example: "Milk, eggs, bread, fruits"
+        completed:
+          type: boolean
+          description: Whether the task is completed
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the task was created
+          example: "2023-01-01T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the task was last updated
+          example: "2023-01-01T12:00:00Z"
+      required:
+        - id
+        - user_id
+        - title
+        - completed
+        - created_at
+        - updated_at
+    
+    CreateTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Task title
+          minLength: 1
+          maxLength: 200
+          example: "Buy groceries"
+        description:
+          type: string
+          description: Optional task description
+          maxLength: 1000
+          example: "Milk, eggs, bread, fruits"
+      required:
+        - title
+    
+    UpdateTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Task title
+          minLength: 1
+          maxLength: 200
+          example: "Buy groceries"
+        description:
+          type: string
+          description: Optional task description
+          maxLength: 1000
+          example: "Milk, eggs, bread, fruits"
+        completed:
+          type: boolean
+          description: Whether the task is completed
+          example: true
+      minProperties: 1  # At least one property must be provided for update

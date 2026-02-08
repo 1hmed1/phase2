@@ -1,55 +1,150 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- SYNC IMPACT REPORT
+Version change: N/A -> 1.0.0
+Modified principles: N/A
+Added sections: Spec-Driven Development, Multi-Tenancy Security, Stateless API, Technology Stack, Architecture Rules, Code Standards, Security, Data Models, API Endpoints, Performance Targets
+Removed sections: N/A
+Templates requiring updates: ✅ updated - .specify/templates/plan-template.md, .specify/templates/spec-template.md, .specify/templates/tasks-template.md
+Follow-up TODOs: None
+-->
+
+# Todo Full-Stack Web Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Spec-Driven Development
+NO code without corresponding task in speckit.tasks; ALL features must originate from speckit.specify; Constitution is highest authority
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Multi-Tenancy Security
+Each user sees ONLY their own tasks (API enforced); JWT authentication REQUIRED for all operations; User ID in URL MUST match JWT user_id
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Stateless API
+No server sessions, JWT-based auth only; All state persists in database; Must be horizontally scalable
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+## Technology Stack (Non-Negotiable)
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+**Frontend:**
+- Next.js 16+ (App Router ONLY)
+- TypeScript (strict mode)
+- Tailwind CSS
+- Better Auth
 
-### [PRINCIPLE_6_NAME]
+**Backend:**
+- Python 3.13+
+- FastAPI
+- SQLModel (ORM)
+- Pydantic (validation)
 
+**Database:**
+- Neon Serverless PostgreSQL
+- No raw SQL (ORM only)
 
-[PRINCIPLE__DESCRIPTION]
+**Dev Tools:**
+- UV for Python packages
+- Qwen Code CLI / Claude Code
+- Spec-Kit Plus
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Architecture Rules
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Monorepo Structure
+```
+hackathon-todo/
+├── specs/           # All specifications
+├── AGENTS.md        # AI instructions
+├── frontend/        # Next.js app
+└── backend/         # FastAPI app
+```
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### API Contract
+- Base: `/api/{user_id}/tasks`
+- Auth: `Authorization: Bearer <JWT>` header required
+- Format: JSON only
+- Validation: User ID in URL = JWT user_id
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Authentication Flow
+```
+1. Better Auth issues JWT → Frontend stores in httpOnly cookie
+2. Frontend sends JWT in header → Backend verifies JWT
+3. Backend extracts user_id → Filters all data by user_id
+```
+
+## Code Standards
+
+### Python Backend
+- Type hints required
+- async/await for DB operations
+- Pydantic models for all requests/responses
+- Max function length: 50 lines
+
+### TypeScript Frontend
+- Server Components by default
+- Client Components only for interactivity
+- API calls in `/lib/api.ts`
+- Tailwind only (no inline styles)
+
+### Naming
+- **Files:** kebab-case (`task-list.tsx`, `user_routes.py`)
+- **Components:** PascalCase (`TaskCard`)
+- **Functions:** camelCase (TS) / snake_case (Python)
+- **Tables:** lowercase plural (`tasks`, `users`)
+
+## Security
+
+### Required
+- JWT secret in environment variable (BETTER_AUTH_SECRET)
+- Passwords hashed (Better Auth)
+- No user accesses other user's data
+- CORS configured (not `*`)
+- Input validation on ALL endpoints
+
+### Environment Variables
+```env
+# Both Frontend & Backend
+BETTER_AUTH_SECRET=<shared-secret>
+DATABASE_URL=<neon-postgres-url>
+```
+
+## Data Models
+
+### User (Better Auth managed)
+- id: UUID
+- email: unique
+- name: optional
+
+### Task
+- id: integer (auto-increment)
+- user_id: UUID (foreign key, indexed)
+- title: string (1-200 chars, required)
+- description: string (0-1000 chars, optional)
+- completed: boolean (default false)
+- created_at, updated_at: timestamps
+
+### Validation
+- Title: 1-200 characters, no whitespace-only
+- Description: max 1000 characters
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/{user_id}/tasks` | List all tasks |
+| POST | `/api/{user_id}/tasks` | Create task |
+| GET | `/api/{user_id}/tasks/{id}` | Get task |
+| PUT | `/api/{user_id}/tasks/{id}` | Update task |
+| DELETE | `/api/{user_id}/tasks/{id}` | Delete task |
+| PATCH | `/api/{user_id}/tasks/{id}/complete` | Toggle complete |
+
+**Responses:**
+- Success: 200/201/204
+- Error: 400/401/404/500
+- All JSON format
+
+## Performance Targets
+- API response: < 500ms (p95)
+- Database: indexed user_id filtering
+- Frontend FCP: < 2s
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices. All code reviews must verify compliance with these principles. Any deviation from these principles requires amending this constitution first. Changes to technology stack or architecture rules require explicit approval and documentation of the migration plan.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-02-08 | **Last Amended**: 2026-02-08

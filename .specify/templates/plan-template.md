@@ -17,21 +17,24 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
 **Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
+**Project Type**: [single/web/mobile - determines source structure]
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**Spec-Driven Development**: Verify NO code without corresponding task in speckit.tasks; ALL features must originate from speckit.specify
+**Multi-Tenancy Security**: Confirm each user sees ONLY their own tasks (API enforced); JWT authentication REQUIRED for all operations; User ID in URL MUST match JWT user_id
+**Stateless API**: Ensure no server sessions, JWT-based auth only; All state persists in database; Must be horizontally scalable
+**Technology Stack Compliance**: Verify adherence to mandated stack (Next.js 16+, TypeScript, Tailwind CSS, Better Auth for frontend; Python 3.13+, FastAPI, SQLModel, Pydantic for backend; Neon Serverless PostgreSQL)
 
 ## Project Structure
 
@@ -83,12 +86,12 @@ frontend/
 │   └── services/
 └── tests/
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+# [REMOVE IF UNUSED] Option 3: Multi-User Todo Web Application
+hackathon-todo/
+├── specs/           # All specifications
+├── AGENTS.md        # AI instructions
+├── frontend/        # Next.js app
+└── backend/         # FastAPI app
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real
